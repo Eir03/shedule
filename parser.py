@@ -8,10 +8,11 @@ from sqlalchemy.orm import sessionmaker, Session
 
 from db_models import *
 
-source_folder = r'excel_files' #Можно в конфиг добавить
+source_folder = r'excel_files'  # Можно в конфиг добавить
 extension = 'xlsx'
+db_file = 'shedule.db'
 
-def sortBy():
+def parse():
     path = getLastFile(source_folder)
     wb = openpyxl.load_workbook(path)
     sheet = wb.active
@@ -64,9 +65,8 @@ def sortBy():
                     cell = sheet[cell.row + 2][cell.column - 1]
     save_to_database(schedule)
 
-def save_to_database(data):
 
-    db_file = 'ooooooooooooo.db'
+def save_to_database(data):
     if os.path.exists(db_file):
         os.remove(db_file)
 
@@ -124,6 +124,7 @@ def save_to_database(data):
 
     finally:
         session.close()
+
 
 def getLastFile(source_folder):
     if not os.path.isdir(r'excel_files'):

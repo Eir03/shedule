@@ -31,6 +31,6 @@ class Schedule(model):
     id_group = Column(Integer, ForeignKey(Group.id))
     id_teacher = Column(Integer, ForeignKey(Teacher.id))
     id_discipline = Column(Integer, ForeignKey(Discipline.id))
-    day = Column(String(20), nullable=False)
+    day = Column(Integer, nullable=False)
     number = Column(Integer, nullable=False)
     cabinet = Column(String(50))
