@@ -13,7 +13,7 @@ def sortBy():
     groups = []
     coordinate = []
 
-    schedule = {}
+    schedule = {"week_type": [], "groups": []}
 
     for cell in sheet[3]:
         if cell.value:
@@ -28,25 +28,33 @@ def sortBy():
     days = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница']
 
     for week in week_type:
-        schedule[week] = {}
+        schedule["week_type"] = week
+        week_groups = []
         print(f"__________{week}__________")
-        for group in trim_dict(groups_dict):
+        for group in groups_dict:
             cell = sheet[groups_dict[group]]
             cell = sheet[cell.row + 3][cell.column - 1]
             print()
             print(group)
-            # Цикл по дням недели
-            group_schedule = {}
-            for day in days:
-                group_schedule[day] = []
-                print()
-                print(day)
-                #Цикл по парам
+
+            group_entry = {
+                "group": group,
+                "days": []
+            }
+
+            for i, day in enumerate(days, start=1):
+                day_entry = {
+                    "day_number": i,
+                    "day": day,
+                    "periods": []
+                }
+
                 for i in range(5):
                     number = cell.value
                     subject = sheet[cell.row][cell.column + 1].value
                     teach = sheet[cell.row + 1][cell.column + 1].value
                     cabinet = sheet[cell.row][cell.column + 4].value
+
                     if week == 'Нечетная':
                         if type(sheet[cell.row][cell.column + 2].value) is int:
                             cabinet = sheet[cell.row][cell.column + 2].value
@@ -61,17 +69,22 @@ def sortBy():
                     period = {
                         "number": number,
                         "subject": subject.replace('\n', ' ') if subject is not None else '',
-                        "teacher": teach,
+                        "teacher": teach.replace('\n', ' ').replace('     ', '') if teach is not None else '',
                         "cabinet": cabinet
                     }
-                    group_schedule[day].append(period)
 
                     print(number, subject.replace('\n', ' ') if subject is not None else '', teach, cabinet)
-                    cell = sheet[cell.row + 2][cell.column - 1]
-        schedule[week][group] = group_schedule
-        break
+                    day_entry["periods"].append(period)
 
-    schedule_json = json.dumps(schedule, indent=4)
+                    cell = sheet[cell.row + 2][cell.column - 1]
+
+                group_entry["days"].append(day_entry)
+
+            week_groups.append(group_entry)
+
+        schedule["groups"] = week_groups
+
+    schedule_json = json.dumps(schedule, indent=4,ensure_ascii=False)
     with open("schedule.json", "w", encoding="utf-8") as f:
         f.write(schedule_json)
 
