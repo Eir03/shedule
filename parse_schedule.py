@@ -6,13 +6,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import sessionmaker, Session
 
+from config import source_folder, db_file, extensions, week_type, days
 from db_models import *
 
-source_folder = r'excel_files'  # Можно в конфиг добавить
-extension = 'xlsx'
-db_file = 'shedule.db'
-
-def parse():
+def parse_schedule():
     path = getLastFile(source_folder)
     wb = openpyxl.load_workbook(path)
     sheet = wb.active
@@ -27,9 +24,6 @@ def parse():
 
     groups = [x.replace('группа', '').replace(' ', '') for x in groups]
     groups_dict = dict(zip(groups, coordinate))
-
-    week_type = ['Нечетная', 'Четная']
-    days = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница']
 
     for week in week_type:
         for group in groups_dict:
@@ -70,7 +64,7 @@ def save_to_database(data):
     if os.path.exists(db_file):
         os.remove(db_file)
 
-    engine = create_engine(f'sqlite:///{db_file}', echo=True)
+    engine = create_engine(f'sqlite:///{db_file}', echo=False)
     model.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)
     session = Session()
@@ -127,9 +121,9 @@ def save_to_database(data):
 
 
 def getLastFile(source_folder):
-    if not os.path.isdir(r'excel_files'):
+    if not os.path.isdir(r'static'):
         os.mkdir(source_folder)
-    list_files = [os.path.join('', file_name) for file_name in glob.glob(f"{source_folder}/*.{extension}")]
+    list_files = [os.path.join('', file_name) for file_name in glob.glob(f"{source_folder}/*.{extensions}")]
     list_files = sorted(list_files, key=lambda x: x[0])
     if not list_files:
         raise FileNotFoundError(f"Файл с таким расширением не найден")

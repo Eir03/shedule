@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+{% set day_mapping = [
+    {"day": 1, "name": "Понедельник"},
+    {"day": 2, "name": "Вторник"},
+    {"day": 3, "name": "Среда"},
+    {"day": 4, "name": "Четверг"},
+    {"day": 5, "name": "Пятница"},
+] %}
+<div class="max-w-2xl mx-auto bg-white p-6 rounded-md shadow-md">
+    <h1 class="text-2xl font-bold mb-4">Schedule</h1>
+
+    <!-- Dropdown for selecting groups -->
+    <div class="mb-4">
+        <label for="group" class="block text-sm font-medium text-gray-600">Select Group</label>
+        <div class="relative">
+            <select id="group" name="group"
+                class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:border-blue-500">
+                {% for group in groups %}
+                    <option value="{{group.id}}">{{ group.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+{% for day_obj in day_mapping %}
+    <h1 class="text-2xl text-center font-bold mb-4 py-4">{{ day_obj.name }}</h1>
+    <table class="w-full border border-gray-300">
+        <thead>
+            <tr>
+                <td class="py-2 px-4 border-b">№ пары</td>
+                <td class="py-2 px-4 border-b">Дисциплина</td>
+                <td class="py-2 px-4 border-b">Преподаватель</td>
+                <td class="py-2 px-4 border-b">Кабинет</td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in result if row.day == day_obj.day %}
+            <tr>
+                <td class="py-2 px-4 border-b">{{row.number}}</td>
+                <td class="py-2 px-4 border-b">Class 7</td>
+                <td class="py-2 px-4 border-b">Class 8</td>
+                <td class="py-2 px-4 border-b">Class 9</td>
+                <td class="py-2 px-4 border-b">Class 10</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endfor %}
+
+</div>
+
+{% endblock content %}
