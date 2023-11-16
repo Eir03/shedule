@@ -1,5 +1,4 @@
 db_file = 'schedule.db'
-
 source_folder = r'static'
 extensions = 'xlsx'
 

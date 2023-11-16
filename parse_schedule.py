@@ -64,10 +64,9 @@ def save_to_database(data):
     if os.path.exists(db_file):
         os.remove(db_file)
 
-    engine = create_engine(f'sqlite:///{db_file}', echo=False)
+    engine = create_engine(f'sqlite:///{db_file}')
     model.metadata.create_all(engine)
-    Session = sessionmaker(bind=engine)
-    session = Session()
+    session = create_session()
 
     try:
         for period in data:

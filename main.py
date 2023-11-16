@@ -1,8 +1,8 @@
 import time
 from collections import defaultdict
 
-from sqlalchemy import create_engine, select
-from sqlalchemy.orm import sessionmaker
+import uvicorn
+from sqlalchemy.orm import sessionmaker, joinedload, aliased, lazyload
 from fastapi.templating import Jinja2Templates
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse
@@ -15,14 +15,18 @@ from db_models import *
 app = FastAPI(
     title='schedule 26 kadr'
 )
+
+if __name__ == '__main__':
+    uvicorn.run('main:app', reload=True)
+
+
 templates = Jinja2Templates(directory="templates")
 
 # Роут для открытия HTML-страницы с передачей данных
 @app.get("/", response_class=HTMLResponse)
 def main(request: Request):
     session = create_session()
-    query = select(Group)
-    result = session.execute(query).fetchall()
+    result = session.query(Group).all()
 
     groups = [row[0] for row in result]
 
@@ -48,12 +52,30 @@ def schedule_by_teacher(teacher_id:int):
 def schedule_by_group(request: Request, group_id=1):
     session = create_session()
 
-    result = session.execute(select(Schedule).filter(Schedule.id_group == group_id)).fetchall()
-    group_query = session.execute(select(Group)).fetchall()
-    groups = [row[0] for row in group_query]
+    # Используйте явное указание столбцов вместо select(Schedule)
 
+
+    # schedule_query = session.query(select(Schedule).filter(Schedule.id_group == group_id)).fetchall()
+    schedule_query = session.query(Schedule).options(joinedload(Schedule.group),
+                                                     joinedload(Schedule.teacher)
+                                                     ).filter(Schedule.id_group == group_id).all()
+
+    even_week_schedule = []
+    odd_week_schedule = []
+
+    for row in schedule_query:
+        if row.id_week_type == 1:
+            odd_week_schedule.append(row)
+        elif row.id_week_type == 2:
+            even_week_schedule.append(row)
+
+    groups = session.query(Group).all()
+    # groups = convert_query(group_query)
+    result = odd_week_schedule + even_week_schedule
     session.close()
-    return templates.TemplateResponse('group.html', {"request": request, "result": result, "days": days, 'groups':groups})
+    return templates.TemplateResponse('group.html',
+                                      {'request': request, 'result': result,
+                                       'days': days, 'groups': groups})
 
 @app.middleware("http")
 async def catch_exceptions(request: Request, call_next):
@@ -62,7 +84,5 @@ async def catch_exceptions(request: Request, call_next):
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
-def create_session():
-    engine = create_engine(f'sqlite:///{db_file}')
-    Session = sessionmaker(bind=engine)
-    return Session()
+def convert_query(query):
+    return [row[0] for row in query]

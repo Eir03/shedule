@@ -35,18 +35,18 @@
             </tr>
         </thead>
         <tbody>
-            {% for row in result if row.day == day_obj.day %}
+            {% for row in result if row.day == day_obj.day and row.id_week_type == 1 %}
             <tr>
                 <td class="py-2 px-4 border-b">{{row.number}}</td>
-                <td class="py-2 px-4 border-b">Class 7</td>
-                <td class="py-2 px-4 border-b">Class 8</td>
-                <td class="py-2 px-4 border-b">Class 9</td>
-                <td class="py-2 px-4 border-b">Class 10</td>
+                <td class="py-2 px-4 border-b">{{ row.teacher.name }}</td>
+                <td class="py-2 px-4 border-b">{{ discipline.name }}</td>
+                <td class="py-2 px-4 border-b">{{ row.cabinet }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
     {% endfor %}
+
 
 </div>
 
