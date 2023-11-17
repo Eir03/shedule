@@ -7,47 +7,78 @@
     {"day": 4, "name": "Четверг"},
     {"day": 5, "name": "Пятница"},
 ] %}
-<div class="max-w-2xl mx-auto bg-white p-6 rounded-md shadow-md">
-    <h1 class="text-2xl font-bold mb-4">Schedule</h1>
+<div class="max-w-7xl mx-auto bg-white p-7 rounded-md shadow-md">
+    <h1 class="text-2xl font-bold mb-4">{{group_name}}</h1>
 
-    <!-- Dropdown for selecting groups -->
-    <div class="mb-4">
-        <label for="group" class="block text-sm font-medium text-gray-600">Select Group</label>
+    <div class="mb-4 ">
+        <label for="group" class="block text-m font-medium text-gray-600 py-2">Выберите группу</label>
         <div class="relative">
             <select id="group" name="group"
-                class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:border-blue-500">
+                class="block appearance-none max-w-md bg-white border border-gray-300 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:border-blue-500">
                 {% for group in groups %}
-                    <option value="{{group.id}}">{{ group.name }}</option>
+                    <option value="{{group.id}}" {% if group_name == group.name %}selected{% endif %}>{{ group.name }}</option>
                 {% endfor %}
             </select>
         </div>
     </div>
 
 {% for day_obj in day_mapping %}
-    <h1 class="text-2xl text-center font-bold mb-4 py-4">{{ day_obj.name }}</h1>
-    <table class="w-full border border-gray-300">
-        <thead>
-            <tr>
-                <td class="py-2 px-4 border-b">№ пары</td>
-                <td class="py-2 px-4 border-b">Дисциплина</td>
-                <td class="py-2 px-4 border-b">Преподаватель</td>
-                <td class="py-2 px-4 border-b">Кабинет</td>
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in result if row.day == day_obj.day and row.id_week_type == 1 %}
-            <tr>
-                <td class="py-2 px-4 border-b">{{row.number}}</td>
-                <td class="py-2 px-4 border-b">{{ row.teacher.name }}</td>
-                <td class="py-2 px-4 border-b">{{ discipline.name }}</td>
-                <td class="py-2 px-4 border-b">{{ row.cabinet }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <h1 class="text-2xl text-center font-bold mb-2 py-4">{{ day_obj.name }}</h1>
+    <div class="flex flex-wrap">
+        <div class="w-full sm:w-1/2 p-2">
+            <h1 class="text-xl text-center  mb-2 w-full">Четная</h1>
+            <table class="w-full border border-collapse collapse border-gray-300">
+                <thead>
+                    <tr>
+                        <td class="py-2 px-2 border-b "></td>
+                        <td class="py-2 px-4 border-b">Дисциплина</td>
+                        <td class="py-2 px-4 border-b">Преподаватель</td>
+                        <td class="py-2 px-2 border-b">каб.</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in result if row.day == day_obj.day and row.id_week_type == 1 %}
+                    <tr style="height: 80px;">
+                            <td class="py-2 px-4 border-b border-r text-center">{{ row.number }}</td>
+                            <td class="py-2 px-4 border-b border-r">{{ row.discipline.name" }}</td>
+                            <td class="py-2 px-4 border-b border-r text-center">{{ row.teacher.name }}</td>
+                            <td class="py-2 px-4 border-b border-r text-center">{{ row.cabinet }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="w-full sm:w-1/2 p-2">
+            <h1 class="text-xl text-center  mb-2 w-full">Нечетная</h1>
+            <table class="w-full border border-collapse collapse border-gray-300">
+                <thead>
+                    <tr>
+                        <td class="py-2 px-2 border-b"></td>
+                        <td class="py-2 px-4 border-b">Дисциплина</td>
+                        <td class="py-2 px-4 border-b">Преподаватель</td>
+                        <td class="py-2 px-4 border-b">каб.</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in result if row.day == day_obj.day and row.id_week_type == 2 %}
+                        <tr style="height: 80px;">
+                            <td class="py-2 px-4 border-b border-r text-center">{{ row.number }}</td>
+                            <td class="py-2 px-4 border-b border-r">{{ row.discipline.name }}</td>
+                            <td class="py-2 px-4 border-b border-r text-center">{{ row.teacher.name }}</td>
+                            <td class="py-2 px-4 border-b border-r text-center">{{ row.cabinet }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
     {% endfor %}
-
-
 </div>
+<script>
+    document.getElementById('group').addEventListener('change', function() {
+        var selectedGroupId = this.value;
+        window.location.href = '/groups?group_id=' + selectedGroupId;  // Перенаправить на новую страницу с выбранной группой
+    });
+</script>
 
 {% endblock content %}

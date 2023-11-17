@@ -52,14 +52,10 @@ def schedule_by_teacher(teacher_id:int):
 def schedule_by_group(request: Request, group_id=1):
     session = create_session()
 
-    # Используйте явное указание столбцов вместо select(Schedule)
-
-
     # schedule_query = session.query(select(Schedule).filter(Schedule.id_group == group_id)).fetchall()
-    schedule_query = session.query(Schedule).options(joinedload(Schedule.group),
+    schedule_query = session.query(Schedule).options(joinedload(Schedule.discipline),
                                                      joinedload(Schedule.teacher)
                                                      ).filter(Schedule.id_group == group_id).all()
-
     even_week_schedule = []
     odd_week_schedule = []
 
@@ -70,12 +66,13 @@ def schedule_by_group(request: Request, group_id=1):
             even_week_schedule.append(row)
 
     groups = session.query(Group).all()
-    # groups = convert_query(group_query)
+    group = session.query(Group).filter(Group.id == group_id).first()
+
     result = odd_week_schedule + even_week_schedule
     session.close()
     return templates.TemplateResponse('group.html',
                                       {'request': request, 'result': result,
-                                       'days': days, 'groups': groups})
+                                       'days': days, 'groups': groups, 'group_name': group.name})
 
 @app.middleware("http")
 async def catch_exceptions(request: Request, call_next):
