@@ -5,11 +5,11 @@ import uvicorn
 from sqlalchemy.orm import sessionmaker, joinedload, aliased, lazyload
 from fastapi.templating import Jinja2Templates
 from starlette.requests import Request
-from starlette.responses import HTMLResponse, JSONResponse
+from starlette.responses import HTMLResponse, JSONResponse, RedirectResponse
 
 from config import db_file, extensions, days
 from parse_schedule import parse_schedule
-from fastapi import FastAPI, Path
+from fastapi import FastAPI, Path, HTTPException
 from db_models import *
 
 app = FastAPI(
@@ -44,12 +44,14 @@ def get_schedule():
     session = create_session()
     return session.query(Schedule).all()
 
-@app.get('/teacher/{teacher_id}')
-def schedule_by_teacher(teacher_id:int):
-    return teacher_id
+
 
 @app.get('/groups/', response_class=HTMLResponse)
-def schedule_by_group(request: Request, group_id=1):
+def redirect_to_groups(request: Request):
+    return RedirectResponse(url='/groups/1')
+
+@app.get('/groups/{group_id}', response_class=HTMLResponse)
+def schedule_by_group(request: Request, group_id: int = 1):
     session = create_session()
 
     # schedule_query = session.query(select(Schedule).filter(Schedule.id_group == group_id)).fetchall()
@@ -73,6 +75,39 @@ def schedule_by_group(request: Request, group_id=1):
     return templates.TemplateResponse('group.html',
                                       {'request': request, 'result': result,
                                        'days': days, 'groups': groups, 'group_name': group.name})
+
+@app.get('/teachers/', response_class=HTMLResponse)
+def redirect_to_groups(request: Request):
+    return RedirectResponse(url='/teachers/1')
+
+@app.get('/teachers/{teacher_id}', response_class=HTMLResponse)
+def schedule_by_group(request: Request, teacher_id: int = 1):
+    session = create_session()
+
+    # schedule_query = session.query(select(Schedule).filter(Schedule.id_group == group_id)).fetchall()
+    schedule_query = session.query(Schedule).options(joinedload(Schedule.discipline),
+                                                     joinedload(Schedule.teacher)
+                                                     ).filter(Schedule.id_teacher == teacher_id).all()
+    even_week_schedule = []
+    odd_week_schedule = []
+
+    for row in schedule_query:
+        if row.id_week_type == 1:
+            odd_week_schedule.append(row)
+        elif row.id_week_type == 2:
+            even_week_schedule.append(row)
+
+    groups = session.query(Group).all()
+    group = session.query(Group).filter(Group.id == teacher_id).first()
+
+    result = odd_week_schedule + even_week_schedule
+    session.close()
+    return templates.TemplateResponse('group.html',
+                                      {'request': request, 'result': result,
+                                       'days': days, 'groups': groups, 'group_name': group.name})
+
+
+
 
 @app.middleware("http")
 async def catch_exceptions(request: Request, call_next):

@@ -23,14 +23,14 @@
     </div>
 
 {% for day_obj in day_mapping %}
-    <h1 class="text-2xl text-center font-bold mb-2 py-4">{{ day_obj.name }}</h1>
+    <h1 class="text-2xl text-center font-bold mb-2 pt-3">{{ day_obj.name }}</h1>
     <div class="flex flex-wrap">
         <div class="w-full sm:w-1/2 p-2">
             <h1 class="text-xl text-center  mb-2 w-full">Четная</h1>
             <table class="w-full border border-collapse collapse border-gray-300">
                 <thead>
                     <tr>
-                        <td class="py-2 px-2 border-b "></td>
+                        <td class="py-2 px-2 border-b text-center">№</td>
                         <td class="py-2 px-4 border-b">Дисциплина</td>
                         <td class="py-2 px-4 border-b">Преподаватель</td>
                         <td class="py-2 px-2 border-b">каб.</td>
@@ -40,7 +40,7 @@
                     {% for row in result if row.day == day_obj.day and row.id_week_type == 1 %}
                     <tr style="height: 80px;">
                             <td class="py-2 px-4 border-b border-r text-center">{{ row.number }}</td>
-                            <td class="py-2 px-4 border-b border-r">{{ row.discipline.name" }}</td>
+                            <td class="py-2 px-4 border-b border-r">{{ row.discipline.name }}</td>
                             <td class="py-2 px-4 border-b border-r text-center">{{ row.teacher.name }}</td>
                             <td class="py-2 px-4 border-b border-r text-center">{{ row.cabinet }}</td>
                     </tr>
@@ -53,7 +53,7 @@
             <table class="w-full border border-collapse collapse border-gray-300">
                 <thead>
                     <tr>
-                        <td class="py-2 px-2 border-b"></td>
+                        <td class="py-2 px-2 border-b text-center">№</td>
                         <td class="py-2 px-4 border-b">Дисциплина</td>
                         <td class="py-2 px-4 border-b">Преподаватель</td>
                         <td class="py-2 px-4 border-b">каб.</td>
@@ -77,7 +77,7 @@
 <script>
     document.getElementById('group').addEventListener('change', function() {
         var selectedGroupId = this.value;
-        window.location.href = '/groups?group_id=' + selectedGroupId;  // Перенаправить на новую страницу с выбранной группой
+        window.location.href = '/groups/' + selectedGroupId;  // Перенаправить на новую страницу с выбранной группой
     });
 </script>
 
