@@ -16,8 +16,9 @@ app = FastAPI(
     title='schedule 26 kadr'
 )
 
-if __name__ == '__main__':
-    uvicorn.run('main:app', reload=True)
+# if __name__ == '__main__':
+#     uvicorn.run('main:app', reload=True)
+parse_schedule()
 
 
 templates = Jinja2Templates(directory="templates")
@@ -53,8 +54,6 @@ def redirect_to_groups(request: Request):
 @app.get('/groups/{group_id}', response_class=HTMLResponse)
 def schedule_by_group(request: Request, group_id: int = 1):
     session = create_session()
-
-    # schedule_query = session.query(select(Schedule).filter(Schedule.id_group == group_id)).fetchall()
     schedule_query = session.query(Schedule).options(joinedload(Schedule.discipline),
                                                      joinedload(Schedule.teacher)
                                                      ).filter(Schedule.id_group == group_id).all()
@@ -83,10 +82,8 @@ def redirect_to_groups(request: Request):
 @app.get('/teachers/{teacher_id}', response_class=HTMLResponse)
 def schedule_by_group(request: Request, teacher_id: int = 1):
     session = create_session()
-
-    # schedule_query = session.query(select(Schedule).filter(Schedule.id_group == group_id)).fetchall()
     schedule_query = session.query(Schedule).options(joinedload(Schedule.discipline),
-                                                     joinedload(Schedule.teacher)
+                                                     joinedload(Schedule.group)
                                                      ).filter(Schedule.id_teacher == teacher_id).all()
     even_week_schedule = []
     odd_week_schedule = []
@@ -97,17 +94,16 @@ def schedule_by_group(request: Request, teacher_id: int = 1):
         elif row.id_week_type == 2:
             even_week_schedule.append(row)
 
-    groups = session.query(Group).all()
-    group = session.query(Group).filter(Group.id == teacher_id).first()
+    teachers = session.query(Teacher).order_by(Teacher.name).all()
+
+    teacher = session.query(Teacher).filter(Teacher.id == teacher_id).first()
+    print(teacher.name)
 
     result = odd_week_schedule + even_week_schedule
     session.close()
-    return templates.TemplateResponse('group.html',
+    return templates.TemplateResponse('teacher.html',
                                       {'request': request, 'result': result,
-                                       'days': days, 'groups': groups, 'group_name': group.name})
-
-
-
+                                       'days': days, 'teachers': teachers, 'teacher_name': teacher.name})
 
 @app.middleware("http")
 async def catch_exceptions(request: Request, call_next):

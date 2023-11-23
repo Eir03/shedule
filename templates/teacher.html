@@ -8,21 +8,22 @@
     {"day": 5, "name": "Пятница"},
 ] %}
 <div class="max-w-7xl mx-auto bg-white p-7 rounded-md shadow-md">
-    <h1 class="text-2xl font-bold mb-4">{{group_name}}</h1>
-
+    <h1 class="text-2xl font-bold mb-4">{{teacher_name}}</h1>
     <div class="mb-4 ">
-        <label for="group" class="block text-m font-medium text-gray-600 py-2">Выберите группу</label>
+        <label for="teacher" class="block text-m font-medium text-gray-600 py-2">Выберите преподавателя</label>
         <div class="relative">
-            <select id="group" name="group"
-                class="block appearance-none max-w-md bg-white border border-gray-300 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:border-blue-500">
-                {% for group in groups %}
-                    <option value="{{group.id}}" {% if group_name == group.name %}selected{% endif %}>{{ group.name }}</option>
+            <input id="teacher" name="teacher" list="teachers"
+                class="block appearance-none max-w-md bg-white border border-gray-300 text-gray-700
+                py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:border-blue-500">
+            <datalist id="teachers">
+                {% for teacher in teachers %}
+                    <option value="{{ teacher.name }}" data-id="{{ teacher.id }}">
                 {% endfor %}
-            </select>
+            </datalist>
         </div>
     </div>
 
-{% for day_obj in day_mapping %}
+    {% for day_obj in day_mapping %}
     <h1 class="text-2xl text-center font-bold mb-2 pt-3">{{ day_obj.name }}</h1>
     <div class="flex flex-wrap">
         <div class="w-full sm:w-1/2 p-2">
@@ -31,19 +32,19 @@
                 <thead>
                     <tr>
                         <td class="py-2 px-2 border-b text-center">№</td>
+                        <td class="py-2 px-4 border-b">Группа</td>
                         <td class="py-2 px-4 border-b">Дисциплина</td>
-                        <td class="py-2 px-4 border-b">Преподаватель</td>
                         <td class="py-2 px-2 border-b">каб.</td>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for row in result if row.day == day_obj.day and row.id_week_type == 1 %}
-                    <tr style="height: 80px;">
+                    {% for row in result|sort(attribute='number') if row.day == day_obj.day and row.id_week_type == 1 %}
+                        <tr style="height: 80px;">
                             <td class="py-2 px-4 border-b border-r text-center">{{ row.number }}</td>
-                            <td class="py-2 px-4 border-b border-r">{{ row.discipline.name }}</td>
-                            <td class="py-2 px-4 border-b border-r text-center">{{ row.teacher.name }}</td>
+                            <td class="py-2 px-4 border-b border-r">{{ row.group.name }}</td>
+                            <td class="py-2 px-4 border-b border-r text-center">{{ row.discipline.name }}</td>
                             <td class="py-2 px-4 border-b border-r text-center">{{ row.cabinet }}</td>
-                    </tr>
+                        </tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -54,17 +55,17 @@
                 <thead>
                     <tr>
                         <td class="py-2 px-2 border-b text-center">№</td>
+                        <td class="py-2 px-4 border-b">Группа</td>
                         <td class="py-2 px-4 border-b">Дисциплина</td>
-                        <td class="py-2 px-4 border-b">Преподаватель</td>
                         <td class="py-2 px-4 border-b">каб.</td>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for row in result if row.day == day_obj.day and row.id_week_type == 2 %}
+                    {% for row in result|sort(attribute='number') if row.day == day_obj.day and row.id_week_type == 2 %}
                         <tr style="height: 80px;">
                             <td class="py-2 px-4 border-b border-r text-center">{{ row.number }}</td>
-                            <td class="py-2 px-4 border-b border-r">{{ row.discipline.name }}</td>
-                            <td class="py-2 px-4 border-b border-r text-center">{{ row.teacher.name }}</td>
+                            <td class="py-2 px-4 border-b border-r">{{ row.group.name }}</td>
+                            <td class="py-2 px-4 border-b border-r text-center">{{ row.discipline.name }}</td>
                             <td class="py-2 px-4 border-b border-r text-center">{{ row.cabinet }}</td>
                         </tr>
                     {% endfor %}
@@ -75,9 +76,12 @@
     {% endfor %}
 </div>
 <script>
-    document.getElementById('group').addEventListener('change', function() {
-        var selectedGroupId = this.value;
-        window.location.href = '/groups/' + selectedGroupId;  // Перенаправить на новую страницу с выбранной группой
+    document.getElementById("teacher").addEventListener("input", function (event) {
+        var selectedTeacher = document.querySelector('option[value="' + event.target.value + '"]');
+        if (selectedTeacher) {
+            var teacherId = selectedTeacher.getAttribute("data-id");
+            window.location.href = "/teachers/" + teacherId;
+        }
     });
 </script>
 

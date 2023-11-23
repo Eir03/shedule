@@ -37,10 +37,13 @@ def parse_schedule():
                     teach = sheet[cell.row + 1][cell.column + 1].value
                     cabinet = sheet[cell.row][cell.column + 4].value
 
+                    if day_index == 3 and week == 'Четная':
+                        pass
+
                     if week == 'Нечетная':
                         if type(sheet[cell.row][cell.column + 2].value) is int:
                             cabinet = sheet[cell.row][cell.column + 2].value
-                    else:
+                    elif week == 'Четная':
                         if sheet[cell.row][cell.column + 2].value is not None:
                             subject = sheet[cell.row][cell.column + 3].value
                             teach = sheet[cell.row + 1][cell.column + 3].value
