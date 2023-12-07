@@ -16,9 +16,9 @@ app = FastAPI(
     title='schedule 26 kadr'
 )
 
-# if __name__ == '__main__':
-#     uvicorn.run('main:app', reload=True)
-parse_schedule()
+if __name__ == '__main__':
+    uvicorn.run('main:app', reload=True)
+# parse_schedule()
 
 
 templates = Jinja2Templates(directory="templates")

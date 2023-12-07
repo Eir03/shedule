@@ -2,9 +2,7 @@ import glob
 import json
 import os
 import openpyxl
-from sqlalchemy import create_engine
-from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import sessionmaker, Session
+from Levenshtein import distance as levenshtein
 
 from config import source_folder, db_file, extensions, week_type, days
 from db_models import *
@@ -88,6 +86,20 @@ def save_to_database(data):
             if not teacher and period["teacher"] != '':
                 teacher = Teacher(name=period["teacher"])
                 session.add(teacher)
+            # teacher_name = period["teacher"]
+            # existing_teachers = session.query(Teacher).all()
+            #
+            # # Проверяем, есть ли уже преподаватель с похожим именем
+            # matching_teachers = [teacher for teacher in existing_teachers if
+            #                      levenshtein(teacher.name, teacher_name) <= 2]
+            # if teacher_name != '':
+            #     if matching_teachers:
+            #         # Если есть преподаватель с похожим именем, используем его
+            #         teacher = matching_teachers[0]
+            #     else:
+            #         # Иначе создаем нового преподавателя
+            #         teacher = Teacher(name=teacher_name)
+            #         session.add(teacher)
 
             discipline = None
             if period["subject"] is not None and period["subject"] != '':
@@ -123,8 +135,9 @@ def save_to_database(data):
 
 
 def getLastFile(source_folder):
-    if not os.path.isdir(r'static'):
+    if not os.path.isdir(source_folder):
         os.mkdir(source_folder)
+        return
     list_files = [os.path.join('', file_name) for file_name in glob.glob(f"{source_folder}/*.{extensions}")]
     list_files = sorted(list_files, key=lambda x: x[0])
     if not list_files:
